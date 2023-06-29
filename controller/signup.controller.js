@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../model/User");
 const { Photo } = require("../model/Photo");
 const uploadImage = require("../utils/upload.image");
-// const { getFirebasePublicKey } = require("../utils/getPublicKey");
 
 const checkDuplicateEmail = async (req, res) => {
   try {
