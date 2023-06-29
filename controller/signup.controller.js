@@ -123,18 +123,21 @@ const verifyOtherServices = async (req, res) => {
     // Find the corresponding public key from JWKS
     const decodedToken = jwt.decode(token, { complete: true });
     const kid = decodedToken.header.kid;
-    const publicKey = jwks.keys.find((key) => key.kid === kid)?.n;
+    const publicKey = jwks.keys.find((key) => key.kid === kid);
 
     console.log("Token:", token);
     console.log("Public Key:", publicKey);
     console.log("Decoded token:", decodedToken);
     console.log("Kid:", kid);
     console.log("JWKS:", jwks);
-    return res.sendStatus(200);
 
     if (!publicKey) {
       throw new Error("Public key not found");
     }
+
+    const { e, n } = publicKey;
+    console.log("Public Key (e):", e);
+    console.log("Public Key (n):", n);
 
     const options = {
       algorithms: ["RS256"],
