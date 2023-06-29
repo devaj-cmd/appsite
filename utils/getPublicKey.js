@@ -9,10 +9,11 @@ const getFirebasePublicKey = async (kid) => {
   try {
     const response = await axios.get(jwksEndpoint);
     const jwks = response.data;
+    console.log(jwks, "jwks");
 
     const publicKey = jwks.keys.find((key) => key.kid === kid);
 
-    console.log(publicKey, "Public Key");
+    // console.log(publicKey, "Public Key");
 
     if (publicKey) {
       return publicKey;
