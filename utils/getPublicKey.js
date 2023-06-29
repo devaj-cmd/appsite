@@ -12,6 +12,8 @@ const getFirebasePublicKey = async (kid) => {
 
     const publicKey = jwks.keys.find((key) => key.kid === kid);
 
+    console.log(publicKey, "Public Key");
+
     if (publicKey) {
       return publicKey;
     } else {
