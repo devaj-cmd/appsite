@@ -130,7 +130,7 @@ const verifyOtherServices = async (req, res) => {
     console.log("Decoded token:", decodedToken);
     console.log("Kid:", kid);
     console.log("JWKS:", jwks);
-    return;
+    return res.sendStatus(200);
 
     if (!publicKey) {
       throw new Error("Public key not found");
