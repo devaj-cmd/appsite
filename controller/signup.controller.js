@@ -133,6 +133,8 @@ const verifyOtherServices = async (req, res) => {
 
       const { email } = jwt.verify(token, publicKey);
 
+      console.log("email", email);
+
       // Check if the user exists in the database
       const user = await User.findOne({ email });
 
