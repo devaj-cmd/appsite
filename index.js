@@ -4,7 +4,7 @@ const cors = require("cors");
 const port = process.env.PORT || 8000;
 const mongoose = require("mongoose");
 const admin = require("firebase-admin");
-const credentials = require("./utils/credentials.json");
+// const credentials = require("./utils/credentials.json");
 
 const helmet = require("helmet");
 
@@ -12,12 +12,12 @@ const signUpRoute = require("./routes/signup.routes");
 
 const app = express();
 
-// app.use(helmet());
+app.use(helmet());
 
 // Initialize the Firebase Admin SDK
-admin.initializeApp({
-  credential: admin.credential.cert(credentials),
-});
+// admin.initializeApp({
+//   credential: admin.credential.cert(credentials),
+// });
 
 app.use(
   cors({
