@@ -125,6 +125,11 @@ const verifyOtherServices = async (req, res) => {
     const kid = decodedToken.header.kid;
     const publicKey = jwks.keys.find((key) => key.kid === kid)?.n;
 
+    console.log("Token:", token);
+    console.log("Decoded token:", decodedToken);
+    console.log("Kid:", kid);
+    console.log("JWKS:", jwks);
+
     if (!publicKey) {
       throw new Error("Public key not found");
     }
