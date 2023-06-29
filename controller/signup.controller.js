@@ -115,12 +115,9 @@ const verifyOtherServices = async (req, res) => {
   try {
     const { token, provider, providerId } = req.body;
 
-    console.log(req.body, "body");
-
     const decodedToken = jwt.decode(token, { complete: true });
     const kid = decodedToken.header.kid;
 
-    console.log(kid, "kid");
     const publicKey = await getFirebasePublicKey(kid);
     console.log(publicKey, "publicKey");
 
