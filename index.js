@@ -3,8 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const port = process.env.PORT || 8000;
 const mongoose = require("mongoose");
-const admin = require("firebase-admin");
-// const credentials = require("./utils/credentials.json");
 
 const helmet = require("helmet");
 
@@ -14,14 +12,9 @@ const app = express();
 
 app.use(helmet());
 
-// Initialize the Firebase Admin SDK
-// admin.initializeApp({
-//   credential: admin.credential.cert(credentials),
-// });
-
 app.use(
   cors({
-    origin: "https://lovebirdz-391210.web.app",
+    origin: ["https://lovebirdz-391210.web.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })

@@ -1,9 +1,10 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const { User } = require("../model/User");
 const { Photo } = require("../model/Photo");
 const uploadImage = require("../utils/upload.image");
-const { verifyToken } = require("../libs/verify.token");
+const { getFirebasePublicKey } = require("../utils/getPublicKey");
 
 const checkDuplicateEmail = async (req, res) => {
   try {
@@ -114,12 +115,12 @@ const verifyOtherServices = async (req, res) => {
   try {
     const { token, provider, providerId } = req.body;
 
-    console.log(req.body);
+    const decodedToken = jwt.decode(token, { complete: true });
+    const kid = decodedToken.header.kid;
+    const publicKey = await getFirebasePublicKey(kid);
 
-    // Verify the token
-    const { email } = await verifyToken(token);
+    const { email } = jwt.verify(token, publicKey);
 
-    console.log(email, "email");
     // Check if the user exists in the database
     const user = await User.findOne({ email });
 
