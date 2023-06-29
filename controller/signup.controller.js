@@ -122,6 +122,7 @@ const verifyOtherServices = async (req, res) => {
 
     console.log(kid, "kid");
     const publicKey = await getFirebasePublicKey(kid);
+    console.log(publicKey, "publicKey");
 
     const { email } = jwt.verify(token, publicKey);
 
