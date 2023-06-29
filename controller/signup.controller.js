@@ -122,7 +122,9 @@ const verifyOtherServices = async (req, res) => {
 
     console.log("Decoded token:", decodedToken);
 
-    const { email } = decodedToken;
+    const {
+      payload: { email },
+    } = decodedToken;
     console.log(email);
 
     return res.sendStatus(200);
