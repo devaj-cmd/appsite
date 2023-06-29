@@ -115,10 +115,6 @@ const verifyOtherServices = async (req, res) => {
   try {
     const { token, provider, providerId } = req.body;
 
-    console.log(req.body);
-
-    return;
-
     // Fetch the JWKS data
     const jwksEndpoint = "https://www.googleapis.com/oauth2/v3/certs";
     const response = await axios.get(jwksEndpoint);
@@ -134,6 +130,7 @@ const verifyOtherServices = async (req, res) => {
     console.log("Decoded token:", decodedToken);
     console.log("Kid:", kid);
     console.log("JWKS:", jwks);
+    return;
 
     if (!publicKey) {
       throw new Error("Public key not found");
