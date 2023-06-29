@@ -1,6 +1,5 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const jwksClient = require("jwks-rsa");
 const axios = require("axios");
 const { User } = require("../model/User");
 const { Photo } = require("../model/Photo");
@@ -111,23 +110,36 @@ const upload = async (req, res) => {
   }
 };
 
+// Function to retrieve the JWKS (JSON Web Key Set) from Google
+async function getFirebaseJWKS() {
+  const jwksEndpoint = "https://www.googleapis.com/oauth2/v3/certs";
+
+  try {
+    const response = await axios.get(jwksEndpoint);
+    const jwks = response.data;
+
+    return jwks;
+  } catch (error) {
+    throw new Error("Failed to fetch JWKS");
+  }
+}
+
 const verifyOtherServices = async (req, res) => {
   try {
     const { token, provider, providerId } = req.body;
 
-    // Fetch the JWKS data
-
-    // Find the corresponding public key from JWKS
+    // Verify the token
+    const jwks = await getFirebaseJWKS();
     const decodedToken = jwt.decode(token, { complete: true });
+    const { kid } = decodedToken.header;
 
-    console.log("Decoded token:", decodedToken);
+    const publicKey = jwks.keys.find((key) => key.kid === kid)?.x5c[0];
 
-    const {
-      payload: { email },
-    } = decodedToken;
-    console.log(email);
+    if (!publicKey) {
+      throw new Error("Public key not found");
+    }
 
-    return res.sendStatus(200);
+    const { email } = jwt.verify(token, publicKey);
 
     // Check if the user exists in the database
     const user = await User.findOne({ email });
@@ -162,7 +174,7 @@ const verifyOtherServices = async (req, res) => {
     }
   } catch (error) {
     // Token verification failed, send an error response
-    res.status(401).json({ error: "Invalid token!" });
+    res.status(401).json({ error: "Invalid token" });
   }
 };
 
