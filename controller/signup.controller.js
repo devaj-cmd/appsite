@@ -118,15 +118,14 @@ const verifyOtherServices = async (req, res) => {
     // Decode the token
     const decodedToken = jwt.decode(token);
 
-    // console.log("Token:", token);
+    console.log("Token:", token);
     console.log("Decoded token:", decodedToken);
 
-    return res.sendStatus(200);
     // Extract the email from the decoded token
     const { email } = decodedToken;
 
     // Check if the user exists in the database
-    let user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (user) {
       // User exists, check if the provider is already linked
@@ -141,17 +140,16 @@ const verifyOtherServices = async (req, res) => {
       } else {
         // Provider is not linked, so add it to the user's linkedProviders array
         user.linkedProviders.push({ provider, providerId });
-        user = await user.save();
+        await user.save();
         res.status(200).json({ message: "Provider linked successfully" });
       }
     } else {
       // User does not exist, create a new account for the provider
       const newUser = new User({
-        name: "Your Name",
         email,
         linkedProviders: [{ provider, providerId }],
       });
-      user = await newUser.save();
+      await newUser.save();
       res
         .status(200)
         .json({ message: "New account created and provider linked" });
