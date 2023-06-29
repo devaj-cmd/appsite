@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const port = process.env.PORT || 8000;
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 
 const helmet = require("helmet");
 
@@ -20,15 +20,15 @@ app.use(
   })
 );
 
-mongoose
-  .connect(process.env.uri)
-  .then(() => {
-    console.log("Connected to MongoDB!");
-    // initial();
-  })
-  .catch((err) => {
-    console.log("Error connecting to MongoDB", err);
-  });
+// mongoose
+//   .connect(process.env.uri)
+//   .then(() => {
+//     console.log("Connected to MongoDB!");
+//     // initial();
+//   })
+//   .catch((err) => {
+//     console.log("Error connecting to MongoDB", err);
+//   });
 
 app.use(express.json({ limit: "10mb" }));
 
