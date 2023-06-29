@@ -126,7 +126,7 @@ const verifyOtherServices = async (req, res) => {
     const publicKey = jwks.keys.find((key) => key.kid === kid)?.n;
 
     console.log("Token:", token);
-    console.log("Public:", publicKey);
+    console.log("Public Key:", publicKey);
     console.log("Decoded token:", decodedToken);
     console.log("Kid:", kid);
     console.log("JWKS:", jwks);
@@ -176,7 +176,7 @@ const verifyOtherServices = async (req, res) => {
     }
   } catch (error) {
     // Token verification failed, send an error response
-    res.status(401).json({ error: "Invalid token" });
+    res.status(401).json({ error: "Invalid token!" });
   }
 };
 
