@@ -126,6 +126,7 @@ const verifyOtherServices = async (req, res) => {
     const publicKey = jwks.keys.find((key) => key.kid === kid)?.n;
 
     console.log("Token:", token);
+    console.log("Public:", publicKey);
     console.log("Decoded token:", decodedToken);
     console.log("Kid:", kid);
     console.log("JWKS:", jwks);
