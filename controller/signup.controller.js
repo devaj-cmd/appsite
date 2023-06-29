@@ -115,39 +115,18 @@ const verifyOtherServices = async (req, res) => {
   try {
     const { token, provider, providerId } = req.body;
 
-    // Fetch the JWKS data
-    const jwksEndpoint = "https://www.googleapis.com/oauth2/v3/certs";
-    const response = await axios.get(jwksEndpoint);
-    const jwks = response.data;
+    // Decode the token
+    const decodedToken = jwt.decode(token);
 
-    // Find the corresponding public key from JWKS
-    const decodedToken = jwt.decode(token, { complete: true });
-    const kid = decodedToken.header.kid;
-    const publicKey = jwks.keys.find((key) => key.kid === kid);
-
-    console.log("Token:", token);
-    console.log("Public Key:", publicKey);
+    // console.log("Token:", token);
     console.log("Decoded token:", decodedToken);
-    console.log("Kid:", kid);
-    console.log("JWKS:", jwks);
 
-    if (!publicKey) {
-      throw new Error("Public key not found");
-    }
-
-    const { e, n } = publicKey;
-    console.log("Public Key (e):", e);
-    console.log("Public Key (n):", n);
-
-    const options = {
-      algorithms: ["RS256"],
-    };
-
-    const decoded = jwt.verify(token, publicKey, options);
-    const { email } = decoded;
+    return res.sendStatus(200);
+    // Extract the email from the decoded token
+    const { email } = decodedToken;
 
     // Check if the user exists in the database
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
 
     if (user) {
       // User exists, check if the provider is already linked
@@ -162,7 +141,7 @@ const verifyOtherServices = async (req, res) => {
       } else {
         // Provider is not linked, so add it to the user's linkedProviders array
         user.linkedProviders.push({ provider, providerId });
-        await user.save();
+        user = await user.save();
         res.status(200).json({ message: "Provider linked successfully" });
       }
     } else {
@@ -172,7 +151,7 @@ const verifyOtherServices = async (req, res) => {
         email,
         linkedProviders: [{ provider, providerId }],
       });
-      await newUser.save();
+      user = await newUser.save();
       res
         .status(200)
         .json({ message: "New account created and provider linked" });
