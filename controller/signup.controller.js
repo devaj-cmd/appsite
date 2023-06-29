@@ -115,58 +115,58 @@ const verifyOtherServices = async (req, res) => {
   try {
     const { token, provider, providerId } = req.body;
 
+    // Fetch the JWKS data
+    const jwksEndpoint = "https://www.googleapis.com/oauth2/v3/certs";
+    const response = await axios.get(jwksEndpoint);
+    const jwks = response.data;
+
+    // Find the corresponding public key from JWKS
     const decodedToken = jwt.decode(token, { complete: true });
     const kid = decodedToken.header.kid;
+    const publicKey = jwks.keys.find((key) => key.kid === kid)?.n;
 
-    const client = jwksClient({
-      jwksUri: "https://www.googleapis.com/oauth2/v3/certs",
-    });
+    if (!publicKey) {
+      throw new Error("Public key not found");
+    }
 
-    client.getSigningKey(kid, async (err, key) => {
-      if (err) {
-        throw new Error("Failed to get signing key");
-      }
+    const options = {
+      algorithms: ["RS256"],
+    };
 
-      const publicKey = key.publicKey || key.rsaPublicKey;
+    const decoded = jwt.verify(token, publicKey, options);
+    const { email } = decoded;
 
-      console.log("publicKey", publicKey);
+    // Check if the user exists in the database
+    const user = await User.findOne({ email });
 
-      const { email } = jwt.verify(token, publicKey);
+    if (user) {
+      // User exists, check if the provider is already linked
+      const linkedProvider = user.linkedProviders.find(
+        (p) => p.provider === provider && p.providerId === providerId
+      );
 
-      console.log("email", email);
-
-      // Check if the user exists in the database
-      const user = await User.findOne({ email });
-
-      if (user) {
-        // User exists, check if the provider is already linked
-        const linkedProvider = user.linkedProviders.find(
-          (p) => p.provider === provider && p.providerId === providerId
-        );
-
-        if (linkedProvider) {
-          res
-            .status(409)
-            .json({ message: "Provider already linked to the user" });
-        } else {
-          // Provider is not linked, so add it to the user's linkedProviders array
-          user.linkedProviders.push({ provider, providerId });
-          await user.save();
-          res.status(200).json({ message: "Provider linked successfully" });
-        }
-      } else {
-        // User does not exist, create a new account for the provider
-        const newUser = new User({
-          name: "Your Name",
-          email,
-          linkedProviders: [{ provider, providerId }],
-        });
-        await newUser.save();
+      if (linkedProvider) {
         res
-          .status(200)
-          .json({ message: "New account created and provider linked" });
+          .status(409)
+          .json({ message: "Provider already linked to the user" });
+      } else {
+        // Provider is not linked, so add it to the user's linkedProviders array
+        user.linkedProviders.push({ provider, providerId });
+        await user.save();
+        res.status(200).json({ message: "Provider linked successfully" });
       }
-    });
+    } else {
+      // User does not exist, create a new account for the provider
+      const newUser = new User({
+        name: "Your Name",
+        email,
+        linkedProviders: [{ provider, providerId }],
+      });
+      await newUser.save();
+      res
+        .status(200)
+        .json({ message: "New account created and provider linked" });
+    }
   } catch (error) {
     // Token verification failed, send an error response
     res.status(401).json({ error: "Invalid token" });
