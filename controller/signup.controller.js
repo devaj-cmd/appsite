@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../model/User");
 const { Photo } = require("../model/Photo");
 const uploadImage = require("../utils/upload.image");
-const { getFirebasePublicKey } = require("../utils/getPublicKey");
+// const { getFirebasePublicKey } = require("../utils/getPublicKey");
 
 const checkDuplicateEmail = async (req, res) => {
   try {
@@ -118,8 +118,19 @@ const verifyOtherServices = async (req, res) => {
     const decodedToken = jwt.decode(token, { complete: true });
     const kid = decodedToken.header.kid;
 
-    const publicKey = await getFirebasePublicKey(kid);
-    // console.log(publicKey, "publicKey");
+    // Fetch the JWKS data
+    const jwksEndpoint = "https://www.googleapis.com/oauth2/v3/certs";
+    const response = await axios.get(jwksEndpoint);
+    const jwks = response.data;
+
+    // Find the corresponding public key from JWKS
+    const publicKey = jwks.keys.find((key) => key.kid === kid)?.n;
+
+    if (!publicKey) {
+      throw new Error("Public key not found");
+    }
+
+    console.log(publicKey, "publicKey");
 
     const { email } = jwt.verify(token, publicKey);
 
