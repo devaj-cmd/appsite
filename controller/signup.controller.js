@@ -150,9 +150,10 @@ const verifyOtherServices = async (req, res) => {
         linkedProviders: [{ provider, providerId }],
       });
       await newUser.save();
-      res
-        .status(200)
-        .json({ message: "New account created and provider linked" });
+      res.status(200).json({
+        message: "New account created and provider linked",
+        user: newUser,
+      });
     }
   } catch (error) {
     // Token verification failed, send an error response
