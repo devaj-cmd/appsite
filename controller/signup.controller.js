@@ -118,9 +118,6 @@ const verifyOtherServices = async (req, res) => {
     // Decode the token
     const decodedToken = jwt.decode(token);
 
-    console.log("Token:", token);
-    console.log("Decoded token:", decodedToken);
-
     // Extract the email from the decoded token
     const { email } = decodedToken;
 
