@@ -115,11 +115,17 @@ const verifyOtherServices = async (req, res) => {
   try {
     const { token, provider, providerId } = req.body;
 
-    // Decode the token
-    const decodedToken = jwt.decode(token);
+    // Fetch the JWKS data
 
-    // Extract the email from the decoded token
+    // Find the corresponding public key from JWKS
+    const decodedToken = jwt.decode(token, { complete: true });
+
+    console.log("Decoded token:", decodedToken);
+
     const { email } = decodedToken;
+    console.log(email);
+
+    return res.sendStatus(200);
 
     // Check if the user exists in the database
     const user = await User.findOne({ email });
@@ -143,14 +149,14 @@ const verifyOtherServices = async (req, res) => {
     } else {
       // User does not exist, create a new account for the provider
       const newUser = new User({
+        name: "Your Name",
         email,
         linkedProviders: [{ provider, providerId }],
       });
       await newUser.save();
-      res.status(200).json({
-        message: "New account created and provider linked",
-        user: newUser,
-      });
+      res
+        .status(200)
+        .json({ message: "New account created and provider linked" });
     }
   } catch (error) {
     // Token verification failed, send an error response
